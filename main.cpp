@@ -15,40 +15,48 @@ std::vector<std::string> shuffleCards(std::vector<std::string> cards){
     return cards;
 }
 
-void initGame(std::vector<std::string> deck){
-    std::cout<<"Enter number of players: ";
-    int numPlayers;
-    std::string top;
-    int deckIndex{0};
+void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::string>> players, int deckIndex, std::vector<std::string> top){
     int cardsRecieved{ 7 };
-    std::cin>>numPlayers;
-    
-    std::vector<std::vector<std::string>> players;
-    players.resize(numPlayers);
 
     for(auto& player:players){
         for(int i{0}; i<cardsRecieved; i++){
             player.push_back(deck[deckIndex++]);                   
         }
         
-        top = deck[deckIndex];
+        top.push_back(deck[deckIndex]);
         
         for(const auto& card:player){
             std::cout<<card<<" ";
         }
         std::cout<<"\n";
     }
-    std::cout<<top;
+    std::cout<<top.at(1);
 
+}
+
+
+
+void playCard(std::vector<std::vector<std::string>> players, int numPlayers){
+
+    bool gameOn;
+
+    while(gameOn){
+        for(auto& player:players){
+
+        }
+
+
+
+    }
 }
 
 int main()
 {
+    std::vector<std::vector<std::string>> players;
     std::vector<std::string> cards = {"hK", "dK", "sK", "cK", 
                                         "hQ", "dQ", "sQ", "cQ", 
                                         "hP", "dP", "sP", "cP", 
                                         "hA", "dA", "sA", "cA", 
-
                                         "h1", "d1", "s1", "c1", 
                                         "h2", "d2", "s2", "c2", 
                                         "h3", "d3", "s3", "c3", 
@@ -61,10 +69,20 @@ int main()
                                         "h10", "d10", "s10", "c10", 
                                         "rJ", "bJ"};
                                         
-    
+    std::cout<<"Enter number of players: ";
+    int numPlayers;
+    std::cin>>numPlayers;
+    players.resize(numPlayers);
+    int deckIndex{0};
+    std::vector<std::string> top;
+
+
+
+
     std::vector<std::string> deck = shuffleCards(cards); 
-    initGame(deck);
+    dishCards(deck, players, deckIndex, top);
 
     return 0;
 }
+
 
