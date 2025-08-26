@@ -15,6 +15,33 @@ std::vector<std::string> shuffleCards(std::vector<std::string> cards){
     return cards;
 }
 
+void initGame(std::vector<std::string> deck){
+    std::cout<<"Enter number of players: ";
+    int numPlayers;
+    std::string top;
+    int deckIndex{0};
+    int cardsRecieved{ 7 };
+    std::cin>>numPlayers;
+    
+    std::vector<std::vector<std::string>> players;
+    players.resize(numPlayers);
+
+    for(auto& player:players){
+        for(int i{0}; i<cardsRecieved; i++){
+            player.push_back(deck[deckIndex++]);                   
+        }
+        
+        top = deck[deckIndex];
+        
+        for(const auto& card:player){
+            std::cout<<card<<" ";
+        }
+        std::cout<<"\n";
+    }
+    std::cout<<top;
+
+}
+
 int main()
 {
     std::vector<std::string> cards = {"hK", "dK", "sK", "cK", 
@@ -35,32 +62,9 @@ int main()
                                         "rJ", "bJ"};
                                         
     
-    std::vector<std::string> deck = shuffleCards(cards);
-    
-     std::cout<<"Enter number of players: ";
-    int numPlayers;
-    int deckIndex{0};
-    int cardsRecieved{ 7 };
-    std::cin>>numPlayers;
-    
-    std::vector<std::vector<std::string>> players;
-    players.resize(numPlayers);
+    std::vector<std::string> deck = shuffleCards(cards); 
+    initGame(deck);
 
-    for(auto& player:players){
-        for(int i{0}; i<cardsRecieved; i++){
-            player.push_back(deck[deckIndex++]);                   
-        }
-        for(const auto& card:player){
-            std::cout<<card<<" ";
-        }
-        std::cout<<"/n";
-    }
-
-    
-    
-   /* for( auto cards : deck){
-        std::cout<< cards << " ";
-    }*/
     return 0;
 }
 
