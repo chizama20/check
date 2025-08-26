@@ -21,6 +21,7 @@ int main()
                                         "hQ", "dQ", "sQ", "cQ", 
                                         "hP", "dP", "sP", "cP", 
                                         "hA", "dA", "sA", "cA", 
+
                                         "h1", "d1", "s1", "c1", 
                                         "h2", "d2", "s2", "c2", 
                                         "h3", "d3", "s3", "c3", 
@@ -36,18 +37,30 @@ int main()
     
     std::vector<std::string> deck = shuffleCards(cards);
     
-    std::cout<<"Enter number of players: ";
+     std::cout<<"Enter number of players: ";
     int numPlayers;
+    int deckIndex{0};
     int cardsRecieved{ 7 };
     std::cin>>numPlayers;
     
-    std::vector<std::vector> players = { numPlayers };
-    
-    
-    
-    for( auto cards : deck){
-        std::cout<< cards << " ";
+    std::vector<std::vector<std::string>> players;
+    players.resize(numPlayers);
+
+    for(auto& player:players){
+        for(int i{0}; i<cardsRecieved; i++){
+            player.push_back(deck[deckIndex++]);                   
+        }
+        for(const auto& card:player){
+            std::cout<<card<<" ";
+        }
+        std::cout<<"/n";
     }
+
+    
+    
+   /* for( auto cards : deck){
+        std::cout<< cards << " ";
+    }*/
     return 0;
 }
 
