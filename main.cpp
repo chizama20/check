@@ -15,7 +15,7 @@ std::vector<std::string> shuffleCards(std::vector<std::string> cards){
     return cards;
 }
 
-void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::string>> players, int deckIndex, std::vector<std::string> top){
+void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::string>> players, int deckIndex, std::string top){
     int cardsRecieved{ 7 };
 
     for(auto& player:players){
@@ -23,32 +23,18 @@ void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::strin
             player.push_back(deck[deckIndex++]);                   
         }
         
-        top.push_back(deck[deckIndex]);
+        top = deck[deckIndex];
         
         for(const auto& card:player){
             std::cout<<card<<" ";
         }
         std::cout<<"\n";
     }
-    std::cout<<top.at(1);
+    std::cout<<top << "\n";
 
 }
 
 
-
-void playCard(std::vector<std::vector<std::string>> players, int numPlayers){
-
-    bool gameOn;
-
-    while(gameOn){
-        for(auto& player:players){
-
-        }
-
-
-
-    }
-}
 
 int main()
 {
@@ -74,13 +60,32 @@ int main()
     std::cin>>numPlayers;
     players.resize(numPlayers);
     int deckIndex{0};
-    std::vector<std::string> top;
-
-
-
+    int playerIndex{0};
+    std::string top;
 
     std::vector<std::string> deck = shuffleCards(cards); 
     dishCards(deck, players, deckIndex, top);
+
+    for(auto& player:players){
+        
+        while (!player.empty())
+        {
+            std::string newcard;
+            std::cout<<"Enter card: ";
+            std::cin>> newcard;
+
+            if(std::find(player.begin(), player.end(), newcard) != player.end()){
+                std::cout<<"Card not in hand";
+            }else{
+                //std::cout<<"Player "<< players[player] <<" played " << newcard; lets keep track of that index later
+                top = newcard;
+                player.erase(find(player.begin(), player.end(), newcard));
+            }
+        }
+        std::cout<<top << " \n";
+        player[playerIndex++];
+        
+    }
 
     return 0;
 }
