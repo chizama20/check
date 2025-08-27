@@ -34,38 +34,40 @@ void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::strin
 
 }
 
-std::string playTurn(std::vector<std::vector<std::string>>& players, int playerIndex, std::string top){
+std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex){
     if (playerIndex >= players.size()) return "";
 
     auto& player = players[playerIndex];
     std::string newcard;
 
-    for(auto&player:players){
-        while (!player.empty())
-        {
+    while (!player.empty())
+    {
     
-            std::cout<<"Player " << playerIndex+1 << " hand: ";
-            for(const auto& card:player){
-            std::cout<<card<<" ";
-            }
+        std::cout<<"\nPlayer " << playerIndex+1 << " hand: ";
+        for(const auto& card:player){
+        std::cout<<card<<" ";
+        }
     
-            std::cout<<"\nEnter card: ";
-            std::cin>> newcard;
+        std::cout<<"\nEnter card: ";
+        std::cin>> newcard;
     
-            auto it = (std::find(player.begin(), player.end(), newcard)); 
-            if ( it == player.end()){
-                std::cout<<"Card not in hand";
-            }else{
-                player.erase(it);
-                std::cout<< "Top of the deck: "<<newcard;
-                return newcard;
+        auto it = (std::find(player.begin(), player.end(), newcard)); 
+        if ( it == player.end()){
+            std::cout<<"\nCard not in hand";
+        }else{
+            player.erase(it);
+            //std::cout<< "\nTop of the deck: "<<newcard;
+            playerIndex++;
+            return newcard;
     
-            }
-        } 
+        }
+
     }
-    std::cout<< "Player " << playerIndex+1 << " has no cards left!\n";
+    std::cout<< "\nPlayer " << playerIndex+1 << " has no cards left!\n";
     return "";
 }
+    
+
 
 
 
@@ -101,13 +103,13 @@ int main()
 
     std::vector<std::string> deck = shuffleCards(cards); 
     dishCards(deck, players, deckIndex, top);
-    playTurn(players, playerIndex, top);
+    //playTurn(players, playerIndex, top);
 
-    /*for(auto&player:players){
+    for(auto&player:players){
         top = playTurn(players, playerIndex);
-        std::cout<< "Top of the deck: "<<top;
-    }*/
-    
+        std::cout<< "\nTop of the deck: "<<top;
+    }
+    //yes
 
     return 0;
 }
