@@ -16,7 +16,7 @@ std::vector<std::string> shuffleCards(std::vector<std::string> cards){
 }
 
 void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::string>>& players, int deckIndex, std::string top){
-    int cardsRecieved{ 7 };
+    int cardsRecieved{ 2 };
 
     for(auto& player:players){
         for(int i{0}; i<cardsRecieved; i++){
@@ -103,13 +103,24 @@ int main()
 
     std::vector<std::string> deck = shuffleCards(cards); 
     dishCards(deck, players, deckIndex, top);
-    //playTurn(players, playerIndex, top);
 
-    for(auto&player:players){
-        top = playTurn(players, playerIndex);
-        std::cout<< "\nTop of the deck: "<<top;
+    while(true){
+        
+        
+        if (players[playerIndex].empty()) {
+                std::cout << "Player " << playerIndex + 1 << " wins!\n";
+                break;
+        }
+        else//(!players[playerIndex].empty())
+        {
+            top = playTurn(players, playerIndex);
+            std::cout << "\nTop of the deck: " << top << "\n";
+            playerIndex++;
+            playerIndex = (playerIndex + 1) % players.size();
+            }
+        
+        
     }
-    //yes
 
     return 0;
 }
