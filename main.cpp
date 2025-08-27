@@ -34,34 +34,35 @@ void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::strin
 
 }
 
-std::string playTurn(std::vector<std::vector<std::string>>& players, int playerIndex){
+std::string playTurn(std::vector<std::vector<std::string>>& players, int playerIndex, std::string top){
     if (playerIndex >= players.size()) return "";
 
     auto& player = players[playerIndex];
     std::string newcard;
 
+    for(auto&player:players){
+        while (!player.empty())
+        {
     
-    while (!player.empty())
-    {
-
-        std::cout<<"Player " << playerIndex+1 << " hand: ";
-        for(const auto& card:player){
-        std::cout<<card<<" ";
-        }
-
-        std::cout<<"Enter card: ";
-        std::cin>> newcard;
-
-        auto it = (std::find(player.begin(), player.end(), newcard)); 
-        if ( it == player.end()){
-            std::cout<<"Card not in hand";
-        }else{
-            std::cout<<"Player played: " << newcard; //lets keep track of that index later
-            player.erase(it);
-            return newcard;
-
-        }
-    } 
+            std::cout<<"Player " << playerIndex+1 << " hand: ";
+            for(const auto& card:player){
+            std::cout<<card<<" ";
+            }
+    
+            std::cout<<"\nEnter card: ";
+            std::cin>> newcard;
+    
+            auto it = (std::find(player.begin(), player.end(), newcard)); 
+            if ( it == player.end()){
+                std::cout<<"Card not in hand";
+            }else{
+                player.erase(it);
+                std::cout<< "Top of the deck: "<<newcard;
+                return newcard;
+    
+            }
+        } 
+    }
     std::cout<< "Player " << playerIndex+1 << " has no cards left!\n";
     return "";
 }
@@ -77,7 +78,6 @@ int main()
                                         "hQ", "dQ", "sQ", "cQ", 
                                         "hP", "dP", "sP", "cP", 
                                         "hA", "dA", "sA", "cA", 
-                                        "h1", "d1", "s1", "c1", 
                                         "h2", "d2", "s2", "c2", 
                                         "h3", "d3", "s3", "c3", 
                                         "h4", "d4", "s4", "c4", 
@@ -101,13 +101,14 @@ int main()
 
     std::vector<std::string> deck = shuffleCards(cards); 
     dishCards(deck, players, deckIndex, top);
+    playTurn(players, playerIndex, top);
 
-    top = playTurn(players, playerIndex);
-    std::cout<<top;
-
+    /*for(auto&player:players){
+        top = playTurn(players, playerIndex);
+        std::cout<< "Top of the deck: "<<top;
+    }*/
     
 
     return 0;
 }
-
 
