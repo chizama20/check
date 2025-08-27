@@ -1,0 +1,5 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     '/Users/goat/Documents/GitHub/CHECK/check/main'
+relocations:     []
+...
