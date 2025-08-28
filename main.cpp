@@ -34,7 +34,17 @@ void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::strin
 
 }
 
-std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex){
+bool checkValidCard(std::string& newcard, std::string& top){
+    if (newcard[0] == top[0]) {
+        return true;
+    } else {
+        std::cout<<"Not valid card.";
+        continue;  
+}
+
+}
+
+std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex, std::string top){
     if (playerIndex >= players.size()) return "";
 
     auto& player = players[playerIndex];
@@ -55,8 +65,8 @@ std::string playTurn(std::vector<std::vector<std::string>>& players, int& player
         if ( it == player.end()){
             std::cout<<"\nCard not in hand";
         }else{
-            player.erase(it);
-            //std::cout<< "\nTop of the deck: "<<newcard;
+            checkValidCard(std::string newcard, std::string top);
+            player.erase(it);            
             playerIndex++;
             return newcard;
     
@@ -66,16 +76,10 @@ std::string playTurn(std::vector<std::vector<std::string>>& players, int& player
     std::cout<< "\nPlayer " << playerIndex+1 << " has no cards left!\n";
     return "";
 }
-    
-
-
-
-
 
 
 int main()
 {
-    std::vector<std::vector<std::string>> players;
     std::vector<std::string> cards = {"hK", "dK", "sK", "cK", 
                                         "hQ", "dQ", "sQ", "cQ", 
                                         "hP", "dP", "sP", "cP", 
@@ -90,16 +94,16 @@ int main()
                                         "h9", "d9", "s9", "c9", 
                                         "h10", "d10", "s10", "c10", 
                                         "rJ", "bJ"};
-
+    std::vector<std::vector<std::string>> players;
     int playerIndex{ 0 };
-                                        
+    int numPlayers;                                    
+    int deckIndex{0};
+    std::string top;
+
     std::cout<<"Enter number of players: ";
-    int numPlayers;
+    
     std::cin>>numPlayers;
     players.resize(numPlayers);
-    int deckIndex{0};
-    //int playerIndex{0};
-    std::string top;
 
     std::vector<std::string> deck = shuffleCards(cards); 
     dishCards(deck, players, deckIndex, top);
@@ -111,13 +115,12 @@ int main()
                 std::cout << "Player " << playerIndex + 1 << " wins!\n";
                 break;
         }
-        else//(!players[playerIndex].empty())
-        {
-            top = playTurn(players, playerIndex);
+        else{
+            top = playTurn(players, playerIndex, std::string top);
             std::cout << "\nTop of the deck: " << top << "\n";
             playerIndex++;
             playerIndex = (playerIndex + 1) % players.size();
-            }
+        }
         
         
     }
