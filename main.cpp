@@ -33,40 +33,44 @@ void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::strin
     std::cout<<top << "\n";
 
 }
+void drawdeck(std::vector<std::string>& deck, int deckIndex, std::vector<std::string>& currentPlayer){
+    currentPlayer.push_back(deck[deckIndex]);
+    std::cout<<"Player drew";
+}
 
-bool checkValidCard(std::string& newcard, std::string& top){
+bool checkValidCard(std::string& newcard, std::string& top, std::vector<std::string>& deck, int deckIndex, std::vector<std::string>& currentPlayer){
     if (newcard[0] == top[0]) {
         return true;
     } else {
         std::cout<<"Not valid card.";
-        continue;  
+        drawdeck(deck, deckIndex, currentPlayer);  
+        return false;
 }
 
 }
 
-std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex, std::string top){
+std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex, std::string top, std::vector<std::string>& deck, int deckIndex, std::vector<std::string> currentPlayer){
     if (playerIndex >= players.size()) return "";
 
-    auto& player = players[playerIndex];
     std::string newcard;
 
-    while (!player.empty())
+    while (!currentPlayer.empty())
     {
     
         std::cout<<"\nPlayer " << playerIndex+1 << " hand: ";
-        for(const auto& card:player){
+        for(const auto& card:currentPlayer){
         std::cout<<card<<" ";
         }
     
         std::cout<<"\nEnter card: ";
         std::cin>> newcard;
     
-        auto it = (std::find(player.begin(), player.end(), newcard)); 
-        if ( it == player.end()){
+        auto it = (std::find(currentPlayer.begin(), currentPlayer.end(), newcard)); 
+        if ( it == currentPlayer.end()){
             std::cout<<"\nCard not in hand";
         }else{
-            checkValidCard(std::string newcard, std::string top);
-            player.erase(it);            
+            checkValidCard(newcard, top, deck, deckIndex, currentPlayer);
+            currentPlayer.erase(it);            
             playerIndex++;
             return newcard;
     
@@ -96,7 +100,8 @@ int main()
                                         "rJ", "bJ"};
     std::vector<std::vector<std::string>> players;
     int playerIndex{ 0 };
-    int numPlayers;                                    
+    int numPlayers;      
+    std::vector<std::string> currentPlayer = players[playerIndex];                              
     int deckIndex{0};
     std::string top;
 
@@ -107,16 +112,17 @@ int main()
 
     std::vector<std::string> deck = shuffleCards(cards); 
     dishCards(deck, players, deckIndex, top);
+    //std::string topOfDeck = deck[deckIndex];
 
     while(true){
         
         
-        if (players[playerIndex].empty()) {
+        if (currentPlayer.empty()) {
                 std::cout << "Player " << playerIndex + 1 << " wins!\n";
                 break;
         }
         else{
-            top = playTurn(players, playerIndex, std::string top);
+            top = playTurn(players, playerIndex, top, deck, deckIndex, currentPlayer);
             std::cout << "\nTop of the deck: " << top << "\n";
             playerIndex++;
             playerIndex = (playerIndex + 1) % players.size();
