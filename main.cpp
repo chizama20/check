@@ -15,7 +15,7 @@ std::vector<std::string> shuffleCards(std::vector<std::string> cards){
     return cards;
 }
 
-void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::string>>& players, int& deckIndex, std::string& top){
+void dishCards(std::vector<std::string>& deck, std::vector<std::vector<std::string>>& players, int& deckIndex, std::string& top){
     int cardsRecieved{ 5 };
 
     for(auto& player:players){
@@ -25,55 +25,74 @@ void dishCards(std::vector<std::string> deck, std::vector<std::vector<std::strin
         
         top = deck[deckIndex];
         
-        for(const auto& card:player){
+        /* for(const auto& card:player){
             std::cout<<card<<" ";
-        }
+        }*/
         std::cout<<"\n";
     }
     std::cout<< "start: "<< top << "\n";
 
 }
 void drawdeck(std::vector<std::string>& deck, int& deckIndex, std::vector<std::vector<std::string>>& players, int& playerIndex){    
+    
+    if(deckIndex>=deck.size()){    
+        std::cout<<"\nDeck is empty!";
+        return;    
+    } 
     players[playerIndex].push_back(deck[deckIndex]);
     std::cout<<"\nPlayer drew";
+    ++deckIndex;
 }
 
-void checkValidCard(std::string& newcard, std::string& top, std::vector<std::string>& deck, int deckIndex, std::vector<std::vector<std::string>>& players, int& playerIndex){
-    if (newcard[0] == top[0] || newcard[1] == top[1]) {
+bool checkValidCard(std::string& makeMove, std::string& top, std::vector<std::string>& discardPile){
+    if (makeMove[0] == top[0] || makeMove[1] == top[1]) {
         std::cout<<"\nPlayer played";
-        top = newcard;
-        //return true;
+        discardPile.push_back(top);
+        top = makeMove;  
+        return true;   
     } else {
-        std::cout<<"Not valid card.";
-        drawdeck(deck, deckIndex, players, playerIndex);  
-        //return false;
+        return false;
 }
 
 }
 
-std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex, std::string& top, std::vector<std::string>& deck, int& deckIndex){
+std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex, std::string& top, std::vector<std::string>& deck, int& deckIndex, std::vector<std::string>& discardPile){
     if (playerIndex >= players.size()) return "";
 
-    std::string newcard;
+    std::string makeMove;
     while (!players[playerIndex].empty())
     {
     
         std::cout<<"\nPlayer " << playerIndex+1 << " hand: ";
         for(const auto& card:players[playerIndex]){
-        std::cout<<card<<" ";
+            std::cout<<card<<" ";
         }
     
-        std::cout<<"\nEnter card: ";
-        std::cin>> newcard;
-    
-        auto it = (std::find(players[playerIndex].begin(), players[playerIndex].end(), newcard)); 
+        std::cout<<"\nEnter Card \nDraw Deck '+' \nCall Check '!'\n\n--> ";
+        std::cin>> makeMove;
+        
+        if(makeMove == "+"){
+            drawdeck(deck, deckIndex, players, playerIndex);
+            return "";    
+        }else if(makeMove == "!"){
+            std::cout<<"\nCHECK!!\n";
+            return "";    
+        }
+        
+        auto it = (std::find(players[playerIndex].begin(), players[playerIndex].end(), makeMove)); 
         if ( it == players[playerIndex].end()){
             std::cout<<"\nInvalid card or Card not in hand";
+            drawdeck(deck, deckIndex, players, playerIndex);
+            return "";
         }else{
-            checkValidCard(newcard, top, deck, deckIndex, players, playerIndex);
-            players[playerIndex].erase(it);            
-            return newcard;
-    
+            if(checkValidCard(makeMove, top, discardPile)){
+                players[playerIndex].erase(it);            
+                return makeMove;
+            }else{
+                std::cout<<"Drawing due to invalid move....";
+                drawdeck(deck, deckIndex, players, playerIndex);
+                return "";
+            }    
         }
 
     }
@@ -103,6 +122,7 @@ int main()
     int numPlayers;                                    
     int deckIndex{0};
     std::string top;
+    std::vector<std::string> discardPile;
 
     std::cout<<"Enter number of players: ";
     
@@ -120,9 +140,22 @@ int main()
                 break;
         }
         else{
-            playTurn(players, playerIndex, top, deck, deckIndex);
+            playTurn(players, playerIndex, top, deck, deckIndex, discardPile);
             std::cout << "\nTop of the deck: " << top << "\n";
             playerIndex = (playerIndex + 1) % players.size();
+            if(deckIndex>= deck.size()){
+                std::cout << "\nHol up ma niggas lemme reshuffle... \n";
+                std::string keepTop = discardPile.back();
+                discardPile.pop_back();
+                
+                deck = discardPile;
+                shuffleCards(deck);  
+                deckIndex = 0;
+
+                discardPile.clear();
+                discardPile.push_back(keepTop);
+                top = keepTop;
+            }
         }
         
         
