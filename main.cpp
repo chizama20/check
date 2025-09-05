@@ -44,6 +44,22 @@ void drawdeck(std::vector<std::string>& deck, int& deckIndex, std::vector<std::v
     ++deckIndex;
 }
 
+/*std::string checkSpecial(std::string& makeMove){
+
+    switch(makeMove)
+        case makeMove[1] == '7':
+            std::cout<<"DRAW 2";
+        case makeMove[1] == 'A':
+            std::cout<<"SKIP";
+        case makeMove[1] == 'J':
+            std::cout<<"DRAW 4";
+        case makeMove[1] == 'P':
+            std::cout<<"CHANGE WHAT YOU WANT";
+
+
+    return "";
+}*/
+
 bool checkValidCard(std::string& makeMove, std::string& top, std::vector<std::string>& discardPile){
     if (makeMove[0] == top[0] || makeMove[1] == top[1]) {
         std::cout<<"\nPlayer played";
@@ -77,6 +93,8 @@ std::string playTurn(std::vector<std::vector<std::string>>& players, int& player
         }else if(makeMove == "!"){
             std::cout<<"\nCHECK!!\n";
             return "";    
+        }else if (makeMove == checkSpecial(makeMove)){
+            std::cout<<"Special used";
         }
         
         auto it = (std::find(players[playerIndex].begin(), players[playerIndex].end(), makeMove)); 
