@@ -12,11 +12,25 @@ private:
     std::string rank;
     
 public:
-    Card(char s, std::string rank);
-    std::string toString() const; // combine suit and rank in one string
-    static Card fromString(std::string& s); // turns the string into a card object (struct)
-    bool match(Card& other) const;
-    bool isSpecial() const;
+    Card(char s, std::string rank) : suit(s), rank(rank){}
+    
+    std::string toString() const{
+        return std::string(1, suit) + rank;
+    } // combine suit and rank in one string
+    
+    static Card fromString(std::string& s){
+        char suit = s[0];
+        std::string rank = s.substr(1);
+        return Card(suit, rank);
+    } // turns the string into a card object (struct)
+    
+    bool match(const Card& other) const{
+        return (suit == other.suit || rank == other.rank);
+    }
+
+    bool isSpecial() const{
+        return (rank == "7" || rank == "A" || rank == "J" || rank == "P" );
+    }
 };
 
 
@@ -47,15 +61,25 @@ public:
             }
     }
     
-    void shuffleCards(std::vector<Card>& deck){
+    void shuffleCards(){
         std::random_device rd;
         std::mt19937 g(rd()); 
         
-        std::shuffle(cards.begin(), cards.end(), g);
+        std::shuffle(deck.begin(), deck.end(), g);
     }
 
     Card draw(){
+        Card c = deck.back();
+        deck.pop_back();
+        return c;
+    }
 
+    bool empty(){
+        return deck.empty();
+    }
+
+    int size(){
+        return deck.size();
     }
 
 
@@ -70,9 +94,19 @@ private:
     std::vector<Card> hand;
 
 public:
-    Player(int id);
-    void drawFromDeck(Deck& deck, int n = 1);     // draws n cards into hand
-    bool hasCard(const Card& c) const;
+    Player(int id) : id(id){}
+    
+    void drawFromDeck(Deck& deck, int n = 1){
+        for(int i=0; i<n; i++){
+            if(deck.empty()) break;
+
+            hand.push_back(deck.draw());
+        }
+    }     // draws n cards into hand
+    
+    bool hasCard(const Card& c) const{
+        return 
+    }
     bool removeCard(const Card& c);               // returns true if removed
     void printHand() const;
     
@@ -124,7 +158,6 @@ public:
             auto it = (std::find(players[currentPlayerIndex].begin(), players[currentPlayerIndex].end(), makeMove)); 
             if ( it == players[currentPlayerIndex].end()){
                 std::cout<<"\nInvalid card or Card not in hand";
-                plaoi
                 return "";
             }else{
                 if(checkValidCard(makeMove, top, discardPile)){
