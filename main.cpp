@@ -5,6 +5,147 @@
 #include <random>
 #include <algorithm>
 
+struct Card
+{
+private:
+    char suit;
+    std::string rank;
+    
+public:
+    Card(char s, std::string rank);
+    std::string toString() const; // combine suit and rank in one string
+    static Card fromString(std::string& s); // turns the string into a card object (struct)
+    bool match(Card& other) const;
+    bool isSpecial() const;
+};
+
+
+class Deck{
+private:
+    std::vector<Card> deck;
+    
+
+public:
+    Deck(){
+        std::vector<std::string> cards = {"hK", "dK", "sK", "cK", 
+                                                "hQ", "dQ", "sQ", "cQ", 
+                                                "hP", "dP", "sP", "cP", 
+                                                "hA", "dA", "sA", "cA", 
+                                                "h2", "d2", "s2", "c2", 
+                                                "h3", "d3", "s3", "c3", 
+                                                "h4", "d4", "s4", "c4", 
+                                                "h5", "d5", "s5", "c5", 
+                                                "h6", "d6", "s6", "c6", 
+                                                "h7", "d7", "s7", "c7", 
+                                                "h8", "d8", "s8", "c8", 
+                                                "h9", "d9", "s9", "c9", 
+                                                "h10", "d10", "s10", "c10", 
+                                                "rJ", "bJ"};
+            
+            for(const auto& card:cards){
+                deck.push_back(Card::fromString(card));
+            }
+    }
+    
+    void shuffleCards(std::vector<Card>& deck){
+        std::random_device rd;
+        std::mt19937 g(rd()); 
+        
+        std::shuffle(cards.begin(), cards.end(), g);
+    }
+
+    Card draw(){
+
+    }
+
+
+
+
+};
+
+class Player{
+
+private:
+    int id;
+    std::vector<Card> hand;
+
+public:
+    Player(int id);
+    void drawFromDeck(Deck& deck, int n = 1);     // draws n cards into hand
+    bool hasCard(const Card& c) const;
+    bool removeCard(const Card& c);               // returns true if removed
+    void printHand() const;
+    
+};
+
+
+class Game {
+private:
+    std::vector<Card> deck;      
+    int deckIndex{0};    
+    std::vector<Card> discardPile;   
+    std::vector<Player> players;     
+    int currentPlayerIndex{0};  
+    Card top;        
+
+public:
+    Game(int numPlayers);
+
+    void start(){
+
+        int cardsRecieved{ 5 };
+        for(auto& player:players){
+            for(int i{0}; i<cardsRecieved; i++){
+                player.push_back(deck[deckIndex++]);                   
+            }
+            
+            top = deck[deckIndex];
+
+            /* for(const auto& card:player){
+                std::cout<<card<<" ";
+            }*/
+            std::cout<<"\n";
+        }
+        std::cout<< "start: "<< top << "\n";
+        }    // deal cards, set up first card
+
+    void play(){
+
+        std::string makeMove;
+        while (!players[currentPlayerIndex].empty())
+        {
+        
+            std::cout<<"\nPlayer " << currentPlayerIndex+1 << " hand: ";
+            for(const auto& card:players[currentPlayerIndex]){
+                std::cout<<card<<" ";
+            }
+            
+            std::cin>> makeMove;  // making move & checking valid card
+            auto it = (std::find(players[currentPlayerIndex].begin(), players[currentPlayerIndex].end(), makeMove)); 
+            if ( it == players[currentPlayerIndex].end()){
+                std::cout<<"\nInvalid card or Card not in hand";
+                plaoi
+                return "";
+            }else{
+                if(checkValidCard(makeMove, top, discardPile)){
+                    players[playerIndex].erase(it);            
+                    return makeMove;
+                }else{
+                    std::cout<<"Drawing due to invalid move....";
+                    drawdeck(deck, deckIndex, players, playerIndex);
+                    return "";
+                }    
+            }
+
+        }
+        std::cout<< "\nPlayer " << playerIndex+1 << " has no cards left!\n";
+        return "";
+    
+    }     // main game loop
+    void nextTurn(); // go to next player
+};
+
+
 
 std::vector<std::string> shuffleCards(std::vector<std::string> cards){
     std::random_device rd;
@@ -44,27 +185,28 @@ void drawdeck(std::vector<std::string>& deck, int& deckIndex, std::vector<std::v
     ++deckIndex;
 }
 
-/*std::string checkSpecial(std::string& makeMove){
+std::string cardPlayed(std::string& makeMove, std::vector<std::vector<std::string>>& players, int& playerIndex, std::vector<std::string>& deck, int& deckIndex){
+    char rank = makeMove.back();
 
-    switch(makeMove)
-        case makeMove[1] == '7':
-            std::cout<<"DRAW 2";
-        case makeMove[1] == 'A':
-            std::cout<<"SKIP";
-        case makeMove[1] == 'J':
-            std::cout<<"DRAW 4";
-        case makeMove[1] == 'P':
-            std::cout<<"CHANGE WHAT YOU WANT";
-
+    if(rank == '7'){
+        for(auto& card:deck[deckIndex]{
+        })
+        return "DRAW2";
+    }else if(rank == 'A'){
+        ++playerIndex;
+        return "SKIP";
+    }else if(rank == 'J'){
+        return "DRAW4";
+    }
 
     return "";
-}*/
+}
 
 bool checkValidCard(std::string& makeMove, std::string& top, std::vector<std::string>& discardPile){
     if (makeMove[0] == top[0] || makeMove[1] == top[1]) {
-        std::cout<<"\nPlayer played";
+    /*    std::cout<<"\nPlayer played";
         discardPile.push_back(top);
-        top = makeMove;  
+        top = makeMove;  */  
         return true;   
     } else {
         return false;
