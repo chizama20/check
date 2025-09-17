@@ -71,7 +71,7 @@ public:
     Card draw(){
         Card c = deck.back();
         deck.pop_back();
-        return c;
+        return c; // draw card function, we also have to add something else, but i fogot for now
     }
 
     bool empty(){
@@ -80,7 +80,7 @@ public:
 
     int size(){
         return deck.size();
-    }
+    } 
 
 
 
@@ -105,17 +105,38 @@ public:
     }     // draws n cards into hand
     
     bool hasCard(const Card& c) const{
-        return 
+        for(const auto& card : hand){
+            if(card.toString() == c.toString()){
+                return true;
+            }
+        }
+        return false;
     }
-    bool removeCard(const Card& c);               // returns true if removed
-    void printHand() const;
+
+    bool removeCard(const Card& c){
+        for(auto it = hand.begin(); it != hand.end(); it++){
+            if(it->toString() == c.toString()){
+                hand.erase(it);
+                return true
+            }
+        }
+        return false;
+    }               // returns true if removed
+   
+    void printHand() const{
+        std::cout<< "Player " << id << " hand: ";
+        for(const auto& card : hand){
+            std::cout<< card.toString() << " ";
+        }
+        std::cout<<"\n";
+    }
     
 };
 
 
 class Game {
 private:
-    std::vector<Card> deck;      
+    Deck deck;      
     int deckIndex{0};    
     std::vector<Card> discardPile;   
     std::vector<Player> players;     
@@ -130,7 +151,7 @@ public:
         int cardsRecieved{ 5 };
         for(auto& player:players){
             for(int i{0}; i<cardsRecieved; i++){
-                player.push_back(deck[deckIndex++]);                   
+                player.drawFromDeck(deck, 1);                   
             }
             
             top = deck[deckIndex];
