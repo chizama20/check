@@ -71,7 +71,7 @@ public:
     Card draw(){
         Card c = deck.back();
         deck.pop_back();
-        return c; // draw card function, we also have to add something else, but i fogot for now
+        return c; // draw card function, we also have to add it  to the discard pile, probably in the game class
     }
 
     bool empty(){
@@ -81,9 +81,6 @@ public:
     int size(){
         return deck.size();
     } 
-
-
-
 
 };
 
@@ -130,15 +127,19 @@ public:
         }
         std::cout<<"\n";
     }
+
+    bool empty(){
+        return hand.empty();
+    }
     
 };
 
 
 class Game {
 private:
-    Deck deck;      
-    int deckIndex{0};    
-    std::vector<Card> discardPile;   
+    Deck deck;
+    Deck discardPile;      
+    int deckIndex{0};       
     std::vector<Player> players;     
     int currentPlayerIndex{0};  
     Card top;        
@@ -154,36 +155,36 @@ public:
                 player.drawFromDeck(deck, 1);                   
             }
             
-            top = deck[deckIndex];
-
+            top = deck.draw();
+            
             /* for(const auto& card:player){
                 std::cout<<card<<" ";
-            }*/
-            std::cout<<"\n";
+            }
+            std::cout<<"\n";*/
         }
         std::cout<< "start: "<< top << "\n";
-        }    // deal cards, set up first card
+    }    // deal cards, set up first card
 
     void play(){
 
-        std::string makeMove;
+        Card move;
         while (!players[currentPlayerIndex].empty())
         {
         
             std::cout<<"\nPlayer " << currentPlayerIndex+1 << " hand: ";
-            for(const auto& card:players[currentPlayerIndex]){
+            for(const auto& card : gf jplayers){
                 std::cout<<card<<" ";
             }
             
-            std::cin>> makeMove;  // making move & checking valid card
-            auto it = (std::find(players[currentPlayerIndex].begin(), players[currentPlayerIndex].end(), makeMove)); 
+            std::cin>> move;  // making move & checking valid card
+            auto it = (std::find(players[currentPlayerIndex].begin(), players[currentPlayerIndex].end(), move)); 
             if ( it == players[currentPlayerIndex].end()){
                 std::cout<<"\nInvalid card or Card not in hand";
                 return "";
             }else{
-                if(checkValidCard(makeMove, top, discardPile)){
+                if(checkValidCard(move, top, discardPile)){
                     players[playerIndex].erase(it);            
-                    return makeMove;
+                    return move;
                 }else{
                     std::cout<<"Drawing due to invalid move....";
                     drawdeck(deck, deckIndex, players, playerIndex);
