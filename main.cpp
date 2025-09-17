@@ -114,7 +114,7 @@ public:
         for(auto it = hand.begin(); it != hand.end(); it++){
             if(it->toString() == c.toString()){
                 hand.erase(it);
-                return true
+                return true;
             }
         }
         return false;
@@ -131,6 +131,10 @@ public:
     bool empty(){
         return hand.empty();
     }
+
+    Card handBegin(){
+        return hand.begin();
+    }
     
 };
 
@@ -138,7 +142,7 @@ public:
 class Game {
 private:
     Deck deck;
-    Deck discardPile;      
+    std::vector<Card> discardPile;      
     int deckIndex{0};       
     std::vector<Player> players;     
     int currentPlayerIndex{0};  
@@ -152,51 +156,56 @@ public:
         int cardsRecieved{ 5 };
         for(auto& player:players){
             for(int i{0}; i<cardsRecieved; i++){
-                player.drawFromDeck(deck, 1);                   
+                player.drawFromDeck(deck, cardsRecieved);                   
             }
             
             top = deck.draw();
+            discardPile.push_back(top);
             
             /* for(const auto& card:player){
                 std::cout<<card<<" ";
             }
             std::cout<<"\n";*/
         }
-        std::cout<< "start: "<< top << "\n";
+        std::cout<< "start: "<< top.toString() << "\n";
     }    // deal cards, set up first card
 
     void play(){
-
-        Card move;
-        while (!players[currentPlayerIndex].empty())
+        while (true)
         {
-        
-            std::cout<<"\nPlayer " << currentPlayerIndex+1 << " hand: ";
-            for(const auto& card : gf jplayers){
-                std::cout<<card<<" ";
-            }
-            
-            std::cin>> move;  // making move & checking valid card
-            auto it = (std::find(players[currentPlayerIndex].begin(), players[currentPlayerIndex].end(), move)); 
-            if ( it == players[currentPlayerIndex].end()){
-                std::cout<<"\nInvalid card or Card not in hand";
-                return "";
+            Player& player = players[currentPlayerIndex];
+            player.printHand();
+
+            std::string input;
+            std::cout<<"Enter Card or + to draw: ";
+            std::cin>>input;
+
+            if(input == "+"){
+                player.drawFromDeck(deck, 1);
             }else{
-                if(checkValidCard(move, top, discardPile)){
-                    players[playerIndex].erase(it);            
-                    return move;
-                }else{
-                    std::cout<<"Drawing due to invalid move....";
-                    drawdeck(deck, deckIndex, players, playerIndex);
-                    return "";
-                }    
+
+                Card move = Card::fromString(input);
+                if (!move.match(top)){
+                    std::cout<<"Invalid Card";
+                    player.drawFromDeck(deck, 1);
+                }else if(move.isSpecial()){
+                    std::string rank =move.substr(1);
+                    switch (move.toString())
+                    {
+                    case constant expression:
+                        /* code */
+                        break;
+                    
+                    default:
+                        break;
+                    }
+                }
             }
 
-        }
-        std::cout<< "\nPlayer " << playerIndex+1 << " has no cards left!\n";
-        return "";
-    
-    }     // main game loop
+
+        
+        } 
+    }    // main game loop
     void nextTurn(); // go to next player
 };
 
