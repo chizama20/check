@@ -134,7 +134,6 @@ public:
 
 };
 
-
 class Game {
 private:
     Deck deck;
@@ -145,102 +144,103 @@ private:
     char currentSuit;
 
 public:
-    Game(int numPlayers){
-        for (int i=0; i<numPlayers; i++){
-            players.emplace_back(i+1);
+    Game(int numPlayers) {
+        for (int i = 0; i < numPlayers; i++) {
+            players.emplace_back(i + 1);
         }
         deck.shuffleCards();
     }
 
-    void start(){
+    void start() {
         int cardsRecieved{5};
-        for(auto& player:players){   
+        for (auto& player : players) {   
             player.drawFromDeck(deck, cardsRecieved);                   
         }
         top = deck.draw();
         discardPile.push_back(top);
-        
-        std::cout<< "/nStarting card: "<< top.toString() << "\n";
+        currentSuit = top.toString()[0];
+
+        std::cout << "\nStarting card: " << top.toString() << "\n";
     }
 
-    void play(){
-        while (true)
-        {
+    void play() {
+        while (true) {
             Player& player = players[currentPlayerIndex];
             player.printHand();
 
             std::string input;
-            std::cout<<"Enter Card or + to draw: ";
-            std::cin>>input;
+            std::cout << "Enter Card or + to draw: ";
+            std::cin >> input;
 
-            if(input == "+"){
-                /*if(deck.empty()){
-                    deck.shuffleCards();
-                }*/
+            if (input == "+") {
                 player.drawFromDeck(deck, 1);
                 nextTurn();
-                std::cout<< "\nTOP: "<< top.toString() << "\n";
-            }else{
+                std::cout << "\nTOP: " << top.toString() << "\n";
+            } else {
                 Card move = Card::fromString(input);
-                
-                if (!(move.toString()[0] == currentSuit || move.toString().substr(1) == top.toString().substr(1) || move.isSpecial())){
-                    std::cout<<"Invalid Card. Try again\n";
-                }else{
+
+                if (!(move.toString()[0] == currentSuit || 
+                      move.toString().substr(1) == top.toString().substr(1) || 
+                      move.isSpecial())) {
+                    std::cout << "Invalid Card. Try again\n";
+                } else {
                     // Remove card + update discard pile
                     player.removeCard(move);
                     discardPile.push_back(move);
                     top = move;
                     currentSuit = top.toString()[0];
 
-                    if(move.isSpecial()){
+                    if (move.isSpecial()) {
                         std::string rank = move.toString().substr(1);
-                        if (rank == "7"){
-                            std::cout<<"Next player draws 2!\n";
+
+                        if (rank == "7") {
+                            std::cout << "Next player draws 2!\n";
                             nextTurn();
                             players[currentPlayerIndex].drawFromDeck(deck, 2);
-                        }else if (rank == "A"){
-                            std::cout<<"Skip!\n";
+
+                        } else if (rank == "A") {
+                            std::cout << "Skip!\n";
                             nextTurn(); // skip once
                             nextTurn(); // skip again
-                        }else if (rank == "P") {
-                            std::cout << "You played a wildcard! Choose a suit (h, d, s, c): ";
+
+                        } else if (rank == "P") {
+                            std::cout << "J COMMAND!!! Command a suit (h, d, s, c): ";
                             char chosenSuit;
                             std::cin >> chosenSuit;
 
-                            while (chosenSuit != 'h' && chosenSuit != 'd' && chosenSuit != 's' && chosenSuit != 'c') {
+                            while (chosenSuit != 'h' && chosenSuit != 'd' &&
+                                   chosenSuit != 's' && chosenSuit != 'c') {
                                 std::cout << "Invalid suit! Choose h, d, s, or c: ";
                                 std::cin >> chosenSuit;
                             }
 
                             currentSuit = chosenSuit;  
-                            top = move;               
-                            discardPile.push_back(move);
-
-                            std::cout << "Next player must play a card of suit " << currentSuit << "\n";
+                            std::cout << "Next player must play a card of suit " 
+                                      << currentSuit << "\n";
                             nextTurn();
-                        }
 
-                        }else if (rank == "J"){
-                            std::cout<<"Next player draws 4!\n";
+                        } else if (rank == "J") {
+                            std::cout << "Next player draws 4!\n";
                             nextTurn();
                             players[currentPlayerIndex].drawFromDeck(deck, 4);
                         }
-                    }else{
-                        std::cout<<"Player played " << move.toString() << ".\n";
+                    } else {
+                        std::cout << "Player played " << move.toString() << ".\n";
                         nextTurn();
                     }
 
-                    if(player.empty()){
-                        std::cout<<"Player "<<currentPlayerIndex+1<<" wins!\n";
+                    if (player.empty()) {
+                        std::cout << "Player " << currentPlayerIndex + 1 << " wins!\n";
                         break;
                     }
                 }
-                std::cout<< "\nTOP: "<< top.toString() << "\n";
-            }
-        } 
-    
 
-    void nextTurn(){
+                std::cout << "\nTOP: " << top.toString() << "\n";
+            }
+        }
+    }
+
+    void nextTurn() {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
 };
