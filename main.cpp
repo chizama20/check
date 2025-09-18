@@ -12,7 +12,7 @@ private:
     std::string rank;
     
 public:
-    Card(char s, std::string rank) : suit('x'), rank('o'){}
+    Card(char s, const std::string& rank) : suit(s), rank(rank){}
     
     std::string toString() const{
         return std::string(1, suit) + rank;
@@ -141,7 +141,7 @@ private:
     std::vector<Card> discardPile;      
     std::vector<Player> players;     
     int currentPlayerIndex{0};  
-    Card top;        
+    Card top = Card('x', "o"); // top card placeholder
 
 public:
     Game(int numPlayers){
@@ -159,7 +159,7 @@ public:
         top = deck.draw();
         discardPile.push_back(top);
         
-        std::cout<< "Starting card: "<< top.toString() << "\n";
+        std::cout<< "/nStarting card: "<< top.toString() << "\n";
     }
 
     void play(){
@@ -173,13 +173,17 @@ public:
             std::cin>>input;
 
             if(input == "+"){
+                if(deck.empty()){
+                    deck = 
+                }
                 player.drawFromDeck(deck, 1);
+                nextTurn();
+                std::cout<< "\nTOP: "<< top.toString() << "\n";
             }else{
                 Card move = Card::fromString(input);
                 
                 if (!move.match(top)){
-                    std::cout<<"Invalid Card. Drawing instead...\n";
-                    player.drawFromDeck(deck, 1);
+                    std::cout<<"Invalid Card. Try again\n";
                 }else{
                     // Remove card + update discard pile
                     player.removeCard(move);
@@ -198,7 +202,7 @@ public:
                             nextTurn(); // skip again
                         }else if (rank == "P"){
                             std::cout<<"Special P command!\n";
-                            nextTurn();
+                            nextTurn(); // im thinking user input to select different suit
                         }else if (rank == "J"){
                             std::cout<<"Next player draws 4!\n";
                             nextTurn();
@@ -214,6 +218,7 @@ public:
                         break;
                     }
                 }
+                std::cout<< "\nTOP: "<< top.toString() << "\n";
             }
         } 
     }
@@ -229,6 +234,7 @@ int main()
 {
 
     int numplayers;
+    std::cout<<"Enter number of players: ";
     std::cin>>numplayers;
     Game game(numplayers);
 
@@ -238,4 +244,5 @@ int main()
 
     return 0;
 }
+
 
