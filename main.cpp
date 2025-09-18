@@ -142,6 +142,7 @@ private:
     std::vector<Player> players;     
     int currentPlayerIndex{0};  
     Card top = Card('x', "o"); // top card placeholder
+    char currentSuit;
 
 public:
     Game(int numPlayers){
@@ -173,22 +174,23 @@ public:
             std::cin>>input;
 
             if(input == "+"){
-                if(deck.empty()){
-                    deck = 
-                }
+                /*if(deck.empty()){
+                    deck.shuffleCards();
+                }*/
                 player.drawFromDeck(deck, 1);
                 nextTurn();
                 std::cout<< "\nTOP: "<< top.toString() << "\n";
             }else{
                 Card move = Card::fromString(input);
                 
-                if (!move.match(top)){
+                if (!(move.toString()[0] == currentSuit || move.toString().substr(1) == top.toString().substr(1) || move.isSpecial())){
                     std::cout<<"Invalid Card. Try again\n";
                 }else{
                     // Remove card + update discard pile
                     player.removeCard(move);
                     discardPile.push_back(move);
                     top = move;
+                    currentSuit = top.toString()[0];
 
                     if(move.isSpecial()){
                         std::string rank = move.toString().substr(1);
@@ -200,9 +202,24 @@ public:
                             std::cout<<"Skip!\n";
                             nextTurn(); // skip once
                             nextTurn(); // skip again
-                        }else if (rank == "P"){
-                            std::cout<<"Special P command!\n";
-                            nextTurn(); // im thinking user input to select different suit
+                        }else if (rank == "P") {
+                            std::cout << "You played a wildcard! Choose a suit (h, d, s, c): ";
+                            char chosenSuit;
+                            std::cin >> chosenSuit;
+
+                            while (chosenSuit != 'h' && chosenSuit != 'd' && chosenSuit != 's' && chosenSuit != 'c') {
+                                std::cout << "Invalid suit! Choose h, d, s, or c: ";
+                                std::cin >> chosenSuit;
+                            }
+
+                            currentSuit = chosenSuit;  
+                            top = move;               
+                            discardPile.push_back(move);
+
+                            std::cout << "Next player must play a card of suit " << currentSuit << "\n";
+                            nextTurn();
+                        }
+
                         }else if (rank == "J"){
                             std::cout<<"Next player draws 4!\n";
                             nextTurn();
@@ -221,7 +238,7 @@ public:
                 std::cout<< "\nTOP: "<< top.toString() << "\n";
             }
         } 
-    }
+    
 
     void nextTurn(){
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
