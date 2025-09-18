@@ -12,7 +12,7 @@ private:
     std::string rank;
     
 public:
-    Card(char s, std::string rank) : suit(s), rank(rank){}
+    Card(char s, std::string rank) : suit('x'), rank('o'){}
     
     std::string toString() const{
         return std::string(1, suit) + rank;
@@ -139,30 +139,28 @@ class Game {
 private:
     Deck deck;
     std::vector<Card> discardPile;      
-    int deckIndex{0};       
     std::vector<Player> players;     
     int currentPlayerIndex{0};  
     Card top;        
 
 public:
-    Game(int numPlayers);
+    Game(int numPlayers){
+        for (int i=0; i<numPlayers; i++){
+            players.emplace_back(i+1);
+        }
+        deck.shuffleCards();
+    }
 
     void start(){
-
-        int cardsRecieved{ 5 };
+        int cardsRecieved{5};
         for(auto& player:players){   
             player.drawFromDeck(deck, cardsRecieved);                   
-            
-            top = deck.draw();
-            discardPile.push_back(top);
-            
-            /* for(const auto& card:player){
-                std::cout<<card<<" ";
-            }
-            std::cout<<"\n";*/
         }
-        std::cout<< "start: "<< top.toString() << "\n";
-    }    // deal cards, set up first card
+        top = deck.draw();
+        discardPile.push_back(top);
+        
+        std::cout<< "Starting card: "<< top.toString() << "\n";
+    }
 
     void play(){
         while (true)
@@ -177,47 +175,54 @@ public:
             if(input == "+"){
                 player.drawFromDeck(deck, 1);
             }else{
-
                 Card move = Card::fromString(input);
                 
                 if (!move.match(top)){
-                    
-                    std::cout<<"Invalid Card";
+                    std::cout<<"Invalid Card. Drawing instead...\n";
                     player.drawFromDeck(deck, 1);
-                
-                }else if(move.isSpecial()){
-                    
-                    std::string rank = move.toString().substr(1);
-                    if (rank == "7"){
-                        std::cout<<"Draw 2!";
-                        nextTurn();
-                        player.drawFromDeck(deck, 2);
-                    }else if (rank == "A"){
-                        std::cout<<"Skip!";
-                        nextTurn();
-                    }else if (rank == "P"){
-                        std::cout<<"j command!";
-                    }else if (rank == "J"){
-                        std::cout<<"Draw 4!";
-                        nextTurn();
-                        player.drawFromDeck(deck, 2);
-                    }
                 }else{
+                    // Remove card + update discard pile
                     player.removeCard(move);
                     discardPile.push_back(move);
                     top = move;
-                    std::cout<<"Player played " << move.toString() << ".\n";
+
+                    if(move.isSpecial()){
+                        std::string rank = move.toString().substr(1);
+                        if (rank == "7"){
+                            std::cout<<"Next player draws 2!\n";
+                            nextTurn();
+                            players[currentPlayerIndex].drawFromDeck(deck, 2);
+                        }else if (rank == "A"){
+                            std::cout<<"Skip!\n";
+                            nextTurn(); // skip once
+                            nextTurn(); // skip again
+                        }else if (rank == "P"){
+                            std::cout<<"Special P command!\n";
+                            nextTurn();
+                        }else if (rank == "J"){
+                            std::cout<<"Next player draws 4!\n";
+                            nextTurn();
+                            players[currentPlayerIndex].drawFromDeck(deck, 4);
+                        }
+                    }else{
+                        std::cout<<"Player played " << move.toString() << ".\n";
+                        nextTurn();
+                    }
+
+                    if(player.empty()){
+                        std::cout<<"Player "<<currentPlayerIndex+1<<" wins!\n";
+                        break;
+                    }
                 }
             }
-
-
-        
         } 
-    }    // main game loop
+    }
+
     void nextTurn(){
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-    } // go to next player
+    }
 };
+
 
 
 int main()
@@ -234,4 +239,3 @@ int main()
     return 0;
 }
 
-//
