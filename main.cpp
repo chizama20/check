@@ -12,13 +12,13 @@ private:
     std::string rank;
     
 public:
-    Card(char s, std::string rank) : suit(s), rank(rank){}
+    Card(char s, const std::string& rank) : suit(s), rank(rank){}
     
     std::string toString() const{
         return std::string(1, suit) + rank;
     } // combine suit and rank in one string
     
-    static Card fromString(std::string& s){
+    static Card fromString(const std::string& s){
         char suit = s[0];
         std::string rank = s.substr(1);
         return Card(suit, rank);
@@ -114,7 +114,7 @@ public:
         for(auto it = hand.begin(); it != hand.end(); it++){
             if(it->toString() == c.toString()){
                 hand.erase(it);
-                return true
+                return true;
             }
         }
         return false;
@@ -131,252 +131,135 @@ public:
     bool empty(){
         return hand.empty();
     }
-    
-};
 
+};
 
 class Game {
 private:
     Deck deck;
-    Deck discardPile;      
-    int deckIndex{0};       
+    std::vector<Card> discardPile;      
     std::vector<Player> players;     
     int currentPlayerIndex{0};  
-    Card top;        
+    Card top = Card('x', "o"); // top card placeholder
+    char currentSuit;
 
 public:
-    Game(int numPlayers);
-
-    void start(){
-
-        int cardsRecieved{ 5 };
-        for(auto& player:players){
-            for(int i{0}; i<cardsRecieved; i++){
-                player.drawFromDeck(deck, 1);                   
-            }
-            
-            top = deck.draw();
-            
-            /* for(const auto& card:player){
-                std::cout<<card<<" ";
-            }
-            std::cout<<"\n";*/
+    Game(int numPlayers) {
+        for (int i = 0; i < numPlayers; i++) {
+            players.emplace_back(i + 1);
         }
-        std::cout<< "start: "<< top << "\n";
-    }    // deal cards, set up first card
+        deck.shuffleCards();
+    }
 
-    void play(){
-
-        Card move;
-        while (!players[currentPlayerIndex].empty())
-        {
-        
-            std::cout<<"\nPlayer " << currentPlayerIndex+1 << " hand: ";
-            for(const auto& card : gf jplayers){
-                std::cout<<card<<" ";
-            }
-            
-            std::cin>> move;  // making move & checking valid card
-            auto it = (std::find(players[currentPlayerIndex].begin(), players[currentPlayerIndex].end(), move)); 
-            if ( it == players[currentPlayerIndex].end()){
-                std::cout<<"\nInvalid card or Card not in hand";
-                return "";
-            }else{
-                if(checkValidCard(move, top, discardPile)){
-                    players[playerIndex].erase(it);            
-                    return move;
-                }else{
-                    std::cout<<"Drawing due to invalid move....";
-                    drawdeck(deck, deckIndex, players, playerIndex);
-                    return "";
-                }    
-            }
-
+    void start() {
+        int cardsRecieved{5};
+        for (auto& player : players) {   
+            player.drawFromDeck(deck, cardsRecieved);                   
         }
-        std::cout<< "\nPlayer " << playerIndex+1 << " has no cards left!\n";
-        return "";
-    
-    }     // main game loop
-    void nextTurn(); // go to next player
+        top = deck.draw();
+        discardPile.push_back(top);
+        currentSuit = top.toString()[0];
+
+        std::cout << "\nStarting card: " << top.toString() << "\n";
+    }
+
+    void play() {
+        while (true) {
+            Player& player = players[currentPlayerIndex];
+            player.printHand();
+
+            std::string input;
+            std::cout << "Enter Card or + to draw: ";
+            std::cin >> input;
+
+            if (input == "+") {
+                player.drawFromDeck(deck, 1);
+                nextTurn();
+                std::cout << "\nTOP: " << top.toString() << "\n";
+            } else {
+                Card move = Card::fromString(input);
+
+                if (!(move.toString()[0] == currentSuit || 
+                      move.toString().substr(1) == top.toString().substr(1) || 
+                      move.isSpecial())) {
+                    std::cout << "Invalid Card. Try again\n";
+                } else {
+                    // Remove card + update discard pile
+                    player.removeCard(move);
+                    discardPile.push_back(move);
+                    top = move;
+                    currentSuit = top.toString()[0];
+
+                    if (move.isSpecial()) {
+                        std::string rank = move.toString().substr(1);
+
+                        if (rank == "7") {
+                            std::cout << "Next player draws 2!\n";
+                            nextTurn();
+                            players[currentPlayerIndex].drawFromDeck(deck, 2);
+
+                        } else if (rank == "A") {
+                            std::cout << "Skip!\n";
+                            nextTurn(); // skip once
+                            nextTurn(); // skip again
+
+                        } else if (rank == "P") {
+                            std::cout << "J COMMAND!!! Command a suit (h, d, s, c): ";
+                            char chosenSuit;
+                            std::cin >> chosenSuit;
+
+                            while (chosenSuit != 'h' && chosenSuit != 'd' &&
+                                   chosenSuit != 's' && chosenSuit != 'c') {
+                                std::cout << "Invalid suit! Choose h, d, s, or c: ";
+                                std::cin >> chosenSuit;
+                            }
+
+                            currentSuit = chosenSuit;  
+                            std::cout << "Next player must play a card of suit " 
+                                      << currentSuit << "\n";
+                            nextTurn();
+
+                        } else if (rank == "J") {
+                            std::cout << "Next player draws 4!\n";
+                            nextTurn();
+                            players[currentPlayerIndex].drawFromDeck(deck, 4);
+                        }
+                    } else {
+                        std::cout << "Player played " << move.toString() << ".\n";
+                        nextTurn();
+                    }
+
+                    if (player.empty()) {
+                        std::cout << "Player " << currentPlayerIndex + 1 << " wins!\n";
+                        break;
+                    }
+                }
+
+                std::cout << "\nTOP: " << top.toString() << "\n";
+            }
+        }
+    }
+
+    void nextTurn() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+    }
 };
 
 
 
-std::vector<std::string> shuffleCards(std::vector<std::string> cards){
-    std::random_device rd;
-    std::mt19937 g(rd()); 
-    
-    std::shuffle(cards.begin(), cards.end(), g);
-    
-    return cards;
-}
-
-void dishCards(std::vector<std::string>& deck, std::vector<std::vector<std::string>>& players, int& deckIndex, std::string& top){
-    int cardsRecieved{ 5 };
-
-    for(auto& player:players){
-        for(int i{0}; i<cardsRecieved; i++){
-            player.push_back(deck[deckIndex++]);                   
-        }
-        
-        top = deck[deckIndex];
-        
-        /* for(const auto& card:player){
-            std::cout<<card<<" ";
-        }*/
-        std::cout<<"\n";
-    }
-    std::cout<< "start: "<< top << "\n";
-
-}
-void drawdeck(std::vector<std::string>& deck, int& deckIndex, std::vector<std::vector<std::string>>& players, int& playerIndex){    
-    
-    if(deckIndex>=deck.size()){    
-        std::cout<<"\nDeck is empty!";
-        return;    
-    } 
-    players[playerIndex].push_back(deck[deckIndex]);
-    std::cout<<"\nPlayer drew";
-    ++deckIndex;
-}
-
-std::string cardPlayed(std::string& makeMove, std::vector<std::vector<std::string>>& players, int& playerIndex, std::vector<std::string>& deck, int& deckIndex){
-    char rank = makeMove.back();
-
-    if(rank == '7'){
-        for(auto& card:deck[deckIndex]{
-        })
-        return "DRAW2";
-    }else if(rank == 'A'){
-        ++playerIndex;
-        return "SKIP";
-    }else if(rank == 'J'){
-        return "DRAW4";
-    }
-
-    return "";
-}
-
-bool checkValidCard(std::string& makeMove, std::string& top, std::vector<std::string>& discardPile){
-    if (makeMove[0] == top[0] || makeMove[1] == top[1]) {
-    /*    std::cout<<"\nPlayer played";
-        discardPile.push_back(top);
-        top = makeMove;  */  
-        return true;   
-    } else {
-        return false;
-}
-
-}
-
-std::string playTurn(std::vector<std::vector<std::string>>& players, int& playerIndex, std::string& top, std::vector<std::string>& deck, int& deckIndex, std::vector<std::string>& discardPile){
-    if (playerIndex >= players.size()) return "";
-
-    std::string makeMove;
-    while (!players[playerIndex].empty())
-    {
-    
-        std::cout<<"\nPlayer " << playerIndex+1 << " hand: ";
-        for(const auto& card:players[playerIndex]){
-            std::cout<<card<<" ";
-        }
-    
-        std::cout<<"\nEnter Card \nDraw Deck '+' \nCall Check '!'\n\n--> ";
-        std::cin>> makeMove;
-        
-        if(makeMove == "+"){
-            drawdeck(deck, deckIndex, players, playerIndex);
-            return "";    
-        }else if(makeMove == "!"){
-            std::cout<<"\nCHECK!!\n";
-            return "";    
-        }else if (makeMove == checkSpecial(makeMove)){
-            std::cout<<"Special used";
-        }
-        
-        auto it = (std::find(players[playerIndex].begin(), players[playerIndex].end(), makeMove)); 
-        if ( it == players[playerIndex].end()){
-            std::cout<<"\nInvalid card or Card not in hand";
-            drawdeck(deck, deckIndex, players, playerIndex);
-            return "";
-        }else{
-            if(checkValidCard(makeMove, top, discardPile)){
-                players[playerIndex].erase(it);            
-                return makeMove;
-            }else{
-                std::cout<<"Drawing due to invalid move....";
-                drawdeck(deck, deckIndex, players, playerIndex);
-                return "";
-            }    
-        }
-
-    }
-    std::cout<< "\nPlayer " << playerIndex+1 << " has no cards left!\n";
-    return "";
-}
-
-
 int main()
 {
-    std::vector<std::string> cards = {"hK", "dK", "sK", "cK", 
-                                        "hQ", "dQ", "sQ", "cQ", 
-                                        "hP", "dP", "sP", "cP", 
-                                        "hA", "dA", "sA", "cA", 
-                                        "h2", "d2", "s2", "c2", 
-                                        "h3", "d3", "s3", "c3", 
-                                        "h4", "d4", "s4", "c4", 
-                                        "h5", "d5", "s5", "c5", 
-                                        "h6", "d6", "s6", "c6", 
-                                        "h7", "d7", "s7", "c7", 
-                                        "h8", "d8", "s8", "c8", 
-                                        "h9", "d9", "s9", "c9", 
-                                        "h10", "d10", "s10", "c10", 
-                                        "rJ", "bJ"};
-    std::vector<std::vector<std::string>> players;
-    int playerIndex{ 0 };
-    int numPlayers;                                    
-    int deckIndex{0};
-    std::string top;
-    std::vector<std::string> discardPile;
 
+    int numplayers;
     std::cout<<"Enter number of players: ";
+    std::cin>>numplayers;
+    Game game(numplayers);
+
+    game.start();
+    game.play();
     
-    std::cin>>numPlayers;
-    players.resize(numPlayers);
-
-    std::vector<std::string> deck = shuffleCards(cards); 
-    dishCards(deck, players, deckIndex, top);
-
-    while(true){
-        
-        
-        if (players[playerIndex].empty()) {
-                std::cout << "Player " << playerIndex + 1 << " wins!\n";
-                break;
-        }
-        else{
-            playTurn(players, playerIndex, top, deck, deckIndex, discardPile);
-            std::cout << "\nTop of the deck: " << top << "\n";
-            playerIndex = (playerIndex + 1) % players.size();
-            if(deckIndex>= deck.size()){
-                std::cout << "\nHol up ma niggas lemme reshuffle... \n";
-                std::string keepTop = discardPile.back();
-                discardPile.pop_back();
-                
-                deck = discardPile;
-                shuffleCards(deck);  
-                deckIndex = 0;
-
-                discardPile.clear();
-                discardPile.push_back(keepTop);
-                top = keepTop;
-            }
-        }
-        
-        
-    }
 
     return 0;
 }
 
-//
+
